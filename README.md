@@ -17,8 +17,8 @@ SoundBard gives you a draggable window of sound buttons that lives on top of you
 - **Cross-bank search** — type in the sidebar to quickly find any named sound across all your banks
 - **Master volume and reverb** sliders built into the panel
 - **Stop All** button to cut everything at once
-- Respects Foundry's global mute
-- Gives players the ability to control their own volume by integrating with Foundry's native Playlists feature
+- Respects Foundry's **global mute**
+- Gives players the ability to control their own volume by integrating with Foundry's native **Playlists feature**
 
 ---
 
