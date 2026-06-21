@@ -2,6 +2,7 @@ import { getActiveBank, saveSingleBank, getActiveBankId } from "../settings.ts";
 import { MODULE_ID } from "../constants.ts";
 import { emptySlot } from "../types.ts";
 import { SoundboardApp } from "./SoundboardApp.ts";
+import { AudioManager } from "../audio.ts";
 
 const { ApplicationV2 } = foundry.applications.api;
 
@@ -222,6 +223,7 @@ export class SlotConfigApp extends ApplicationV2 {
       slot.eqLow = Number(data.get("eqLow") ?? 0);
       slot.eqMid = Number(data.get("eqMid") ?? 0);
       slot.eqHigh = Number(data.get("eqHigh") ?? 0);
+      AudioManager.applySlotEQ(slot.id, slot.eqLow, slot.eqMid, slot.eqHigh);
       slot.loop = el.querySelector<HTMLInputElement>('[name="loop"]')?.checked ?? false;
       slot.loopDelay = Math.max(0, Number(data.get("loopDelay") ?? 0) || 0);
 

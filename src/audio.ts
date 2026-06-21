@@ -145,7 +145,7 @@ export class AudioManager {
       const mid = ctx.createBiquadFilter();
       mid.type = "peaking";
       mid.frequency.value = EQ_MID_FREQ;
-      mid.Q.value = 1.0;
+      mid.Q.value = 1.4;
       mid.gain.value = slot.eqMid ?? 0;
 
       const high = ctx.createBiquadFilter();
@@ -266,5 +266,13 @@ export class AudioManager {
         reverbNodes.wetGain.gain.value = Math.min(1, slotReverb + masterReverb);
       }
     }
+  }
+
+  static applySlotEQ(slotId: number, eqLow: number, eqMid: number, eqHigh: number): void {
+    const entry = AudioManager.activeSounds.get(slotId);
+    if (!entry?.eqNodes) return;
+    entry.eqNodes.low.gain.value = eqLow;
+    entry.eqNodes.mid.gain.value = eqMid;
+    entry.eqNodes.high.gain.value = eqHigh;
   }
 }
