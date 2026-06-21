@@ -1,6 +1,6 @@
 # SoundBard
 
-A floating soundboard panel for FoundryVTT GMs. Bank your sound effects, assign hotkeys, and fire them off mid-session without breaking stride.
+A floating soundboard panel for FoundryVTT GMs. Bank your sound effects, assign hotkeys, and fire them off mid-session for full immersion.
 
 Built by [Campendium](https://campendium.io) — a digital toolkit for TTRPG GMs and worldbuilders.
 
@@ -10,15 +10,15 @@ Built by [Campendium](https://campendium.io) — a digital toolkit for TTRPG GMs
 
 ## What it does
 
-SoundBard gives you a draggable grid of sound buttons that lives on top of your Foundry canvas. Load sounds into slots, label them, give them hotkeys, and play them with a single click or keypress. Think StreamDeck, but inside Foundry.
+SoundBard gives you a draggable window of sound buttons that lives on top of your Foundry canvas. Load sounds into slots, label them, give them hotkeys, and play them with a single click or keypress. I've modeled this off of the types of soundboards radio DJs use.
 
 - Up to **20 banks** of sounds, each with a configurable grid (up to 8×8)
 - **Hotkeys** per slot, assigned in Configure Controls — keys are shown directly on the button
-- **Cross-bank search** — type in the sidebar to find any named sound across all your banks
+- **Cross-bank search** — type in the sidebar to quickly find any named sound across all your banks
 - **Master volume and reverb** sliders built into the panel
 - **Stop All** button to cut everything at once
-- Respects Foundry's global mute
-- All settings are **client-scoped** — each player's layout is their own
+- Respects Foundry's **global mute**
+- Gives players the ability to control their own volume by integrating with Foundry's native **Playlists feature**
 
 ---
 
