@@ -169,7 +169,12 @@ export class SlotConfigApp extends ApplicationV2 {
       reverbInput.style.setProperty("--fill", `${Math.round(Number(reverbInput.value) * 100)}%`);
     });
 
-    // Live EQ label + fill updates
+    // Live EQ label + fill updates, plus real-time audio when the slot is playing
+    const slotId = getActiveBank().slots[this.slotIndex]?.id ?? this.slotIndex;
+    const eqValue = (name: string) =>
+      Number(el.querySelector<HTMLInputElement>(`input[name="${name}"]`)?.value ?? 0);
+    const applyLiveEQ = () =>
+      AudioManager.applySlotEQ(slotId, eqValue("eqLow"), eqValue("eqMid"), eqValue("eqHigh"));
     el.querySelectorAll<HTMLInputElement>('input[type="range"][name^="eq"]').forEach((input) => {
       const label = el.querySelector<HTMLSpanElement>(`.soundbard-eq-label[data-for="${input.name}"]`);
       input.style.setProperty("--fill", `${eqFill(Number(input.value))}%`);
@@ -177,6 +182,22 @@ export class SlotConfigApp extends ApplicationV2 {
         const db = Number(input.value);
         if (label) label.textContent = formatDb(db);
         input.style.setProperty("--fill", `${eqFill(db)}%`);
+        applyLiveEQ();
+      });
+    });
+
+    // EQ reset buttons — snap individual band back to 0 dB
+    el.querySelectorAll<HTMLButtonElement>(".soundbard-eq-reset").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const name = btn.dataset.for!;
+        const input = el.querySelector<HTMLInputElement>(`[name="${name}"]`);
+        const label = el.querySelector<HTMLSpanElement>(`.soundbard-eq-label[data-for="${name}"]`);
+        if (input) {
+          input.value = "0";
+          input.style.setProperty("--fill", `${eqFill(0)}%`);
+        }
+        if (label) label.textContent = formatDb(0);
+        applyLiveEQ();
       });
     });
 
@@ -275,8 +296,8 @@ function openControlsAtAction(actionId: string): void {
 }
 
 // EQ gain range in dB (shared with audio graph)
-const EQ_MIN = -12;
-const EQ_MAX = 12;
+const EQ_MIN = -20;
+const EQ_MAX = 20;
 
 function eqFill(db: number): number {
   return Math.round(((db - EQ_MIN) / (EQ_MAX - EQ_MIN)) * 100);
@@ -291,7 +312,10 @@ function eqSlider(name: string, labelKey: string, value: number): string {
   return `
         <div class="form-group">
           <label>${game.i18n.localize(labelKey)}: <span class="soundbard-vol-label soundbard-eq-label" data-for="${name}">${formatDb(value)}</span></label>
-          <input type="range" name="${name}" min="${EQ_MIN}" max="${EQ_MAX}" step="1" value="${value}" style="--slider-color: var(--ring)">
+          <div class="soundbard-eq-row">
+            <input type="range" name="${name}" min="${EQ_MIN}" max="${EQ_MAX}" step="1" value="${value}" style="--slider-color: var(--ring)">
+            <button type="button" class="soundbard-eq-reset" data-for="${name}" title="Reset to 0 dB"><i class="fa-solid fa-rotate-left"></i></button>
+          </div>
         </div>`;
 }
 

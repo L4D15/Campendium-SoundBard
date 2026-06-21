@@ -24,6 +24,10 @@ export class SoundboardApp extends ApplicationV2 {
 
   private static instance: SoundboardApp | null = null;
 
+  // Set while closing so the scene-control onChange that fires from
+  // canvas.tokens.activate() (see _onClose) doesn't immediately reopen us.
+  static closing = false;
+
   // Set when a cross-bank search result jumps to another bank; the target slot
   // is flashed once the new bank finishes rendering.
   private static pendingFlash: { bankId: number; slotIndex: number } | null = null;
@@ -34,7 +38,7 @@ export class SoundboardApp extends ApplicationV2 {
       SoundboardApp.instance = new SoundboardApp();
       void SoundboardApp.instance.render({ force: true });
     } else {
-      SoundboardApp.instance.bringToTop();
+      SoundboardApp.instance.bringToFront();
     }
     return SoundboardApp.instance;
   }
@@ -42,6 +46,22 @@ export class SoundboardApp extends ApplicationV2 {
   static refresh(): void {
     if (SoundboardApp.instance?.rendered) {
       void SoundboardApp.instance.render({ force: false });
+    }
+  }
+
+  override async _onClose(options: object): Promise<void> {
+    await (super._onClose as (o: object) => Promise<void>)(options);
+    SoundboardApp.instance = null;
+    // Activate the token layer so Foundry deactivates SoundBard's scene control
+    // button; without this the button stays in "active" state after the panel is
+    // closed via X, which strips cursor:pointer and blocks re-clicks.
+    // activate() synchronously re-fires our button's onChange, which would
+    // reopen the panel — guard it so the close actually sticks.
+    SoundboardApp.closing = true;
+    try {
+      canvas?.tokens?.activate();
+    } finally {
+      SoundboardApp.closing = false;
     }
   }
 

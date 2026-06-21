@@ -73,6 +73,6 @@ Hooks.on("getSceneControlButtons", (controls: Record<string, unknown>) => {
     title: game.i18n.localize("SOUNDBARD.Title"),
     icon: "fa-solid fa-rectangles-mixed",
     button: true,
-    onChange: () => SoundboardApp.open(),
+    onChange: (active?: boolean) => { if (active !== false && !SoundboardApp.closing) SoundboardApp.open(); },
   };
 });

@@ -1006,6 +1006,37 @@
 
 .soundbard-fx-body { padding-top: 10px; }
 
+.soundbard-eq-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.soundbard-eq-row input[type="range"] { flex: 1; }
+
+.soundbard-eq-reset {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--muted-foreground);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  padding: 0;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.soundbard-eq-reset:hover {
+  background: var(--muted);
+  color: var(--foreground);
+  border-color: var(--ring);
+}
+
 /* ============================================================
    Controls Config — deep-link highlight
    ============================================================ */
