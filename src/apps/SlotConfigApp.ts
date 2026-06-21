@@ -147,7 +147,7 @@ export class SlotConfigApp extends ApplicationV2 {
     content.innerHTML = result;
   }
 
-  override _onRender(_context: object, _options: object): void {
+  override async _onRender(_context: object, _options: object): Promise<void> {
     const el = this.element;
 
     // Live volume label update

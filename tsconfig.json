@@ -6,6 +6,8 @@
     "lib": ["ES2022", "DOM"],
     "strict": true,
     "noUncheckedIndexedAccess": true,
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
     "skipLibCheck": true,
     "types": ["@league-of-foundry-developers/foundry-vtt-types"]
   },

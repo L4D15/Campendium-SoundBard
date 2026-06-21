@@ -15,7 +15,7 @@ export function registerSettings(): void {
     scope: "client",
     config: false,
     type: Object,
-    default: makeAllBanks(NUM_BANKS, DEFAULT_COLUMNS, DEFAULT_ROWS),
+    default: makeAllBanks(NUM_BANKS, DEFAULT_COLUMNS, DEFAULT_ROWS) as unknown as Record<string, unknown>,
   });
 
   game.settings.register(MODULE_ID, ACTIVE_BANK_SETTING, {
@@ -102,7 +102,7 @@ interface LegacyBankData {
 }
 
 export function getAllBanks(): AllBanksData {
-  const raw = game.settings.get(MODULE_ID, BANK_SETTING) as AllBanksData | LegacyBankData;
+  const raw = game.settings.get(MODULE_ID, BANK_SETTING) as unknown as AllBanksData | LegacyBankData;
 
   // Migrate from old single-bank format ({ columns, rows, slots })
   if ("slots" in raw && Array.isArray((raw as LegacyBankData).slots) && !("banks" in raw)) {
@@ -110,7 +110,7 @@ export function getAllBanks(): AllBanksData {
     const cols = (game.settings.get(MODULE_ID, "columns") as number) ?? DEFAULT_COLUMNS;
     const rows = (game.settings.get(MODULE_ID, "rows") as number) ?? DEFAULT_ROWS;
     const migrated = makeAllBanks(NUM_BANKS, cols, rows);
-    migrated.banks[0].slots = legacy.slots;
+    migrated.banks[0]!.slots = legacy.slots;
     void saveAllBanks(migrated);
     return migrated;
   }
@@ -131,13 +131,13 @@ export function getAllBanks(): AllBanksData {
 }
 
 export async function saveAllBanks(data: AllBanksData): Promise<void> {
-  await game.settings.set(MODULE_ID, BANK_SETTING, data);
+  await game.settings.set(MODULE_ID, BANK_SETTING, data as unknown as Record<string, unknown>);
 }
 
 export function getActiveBank(): Bank {
   const all = getAllBanks();
   const id = getActiveBankId();
-  return all.banks.find(b => b.id === id) ?? all.banks[0];
+  return all.banks.find(b => b.id === id) ?? all.banks[0]!;
 }
 
 export async function saveSingleBank(bank: Bank): Promise<void> {

@@ -69,8 +69,8 @@ Grid size changes apply across all banks. Slots beyond the new grid size are pre
 
 | Foundry Version | Status |
 |---|---|
-| V13 | Verified |
-| V11–V12 | Should work |
+| V14 | Verified (QA'd on V14) |
+| V13 and earlier | Not supported |
 
 ---
 

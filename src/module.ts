@@ -30,19 +30,18 @@ Hooks.once("ready", () => {
     | { action: "stop"; slotId: number }
     | { action: "stopAll" };
 
-  (game.socket as unknown as { on(event: string, cb: (data: SoundBardEvent) => void): void })
-    ?.on(`module.${MODULE_ID}`, (data) => {
-      if (data.action === "play") {
-        void AudioManager.play(data.slot, false);
-      } else if (data.action === "stop") {
-        void AudioManager.stop(data.slotId, false);
-      } else if (data.action === "stopAll") {
-        AudioManager.stopAll(false);
-      }
-    });
+  game.socket.on(`module.${MODULE_ID}`, (data: SoundBardEvent) => {
+    if (data.action === "play") {
+      void AudioManager.play(data.slot, false);
+    } else if (data.action === "stop") {
+      void AudioManager.stop(data.slotId, false);
+    } else if (data.action === "stopAll") {
+      AudioManager.stopAll(false);
+    }
+  });
 
   // Expose API for macros: game.soundbard.open()
-  (game as Record<string, unknown>).soundbard = { open: () => SoundboardApp.open() };
+  (game as unknown as Record<string, unknown>).soundbard = { open: () => SoundboardApp.open() };
   console.log(`${MODULE_ID} | Ready`);
 });
 

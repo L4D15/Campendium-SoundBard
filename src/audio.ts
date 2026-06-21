@@ -78,8 +78,7 @@ export class AudioManager {
 
   static async play(slot: SlotData, broadcast = true): Promise<void> {
     if (broadcast) {
-      (game.socket as unknown as { emit(event: string, data: unknown): void })
-        ?.emit(`module.${MODULE_ID}`, { action: "play", slot });
+      game.socket.emit(`module.${MODULE_ID}`, { action: "play", slot });
     }
 
     // Stop old sound immediately — fire and forget, never let it block the new play
@@ -93,12 +92,11 @@ export class AudioManager {
     }
 
     // Resume AudioContext before async work
-    const ctx = (game.audio as unknown as { context?: AudioContext }).context;
+    const ctx = game.audio.context;
     if (ctx?.state === "suspended") await ctx.resume();
 
     // Always create a fresh Sound via the constructor to bypass game.audio.create() caching
-    const SoundClass = foundry.audio.Sound as unknown as new (src: string) => foundry.audio.Sound;
-    const sound = new SoundClass(slot.src);
+    const sound = new foundry.audio.Sound(slot.src);
 
     try {
       await sound.load();
@@ -129,8 +127,8 @@ export class AudioManager {
     let reverbNodes: ReverbNodes | undefined;
     let eqNodes: EQNodes | undefined;
     if (ctx) {
-      const soundAny = sound as unknown as { gainNode: GainNode };
-      const gainNode = soundAny.gainNode;
+      const gainNode = sound.gainNode;
+      if (!gainNode) return;
       // Connect to the raw AudioContext destination, NOT sound.destination.
       // A Sound created without an explicit context defaults to game.audio.music,
       // whose .destination is the Music-bus gain node (the global Music slider).
@@ -207,8 +205,7 @@ export class AudioManager {
 
   static async stop(slotId: number, broadcast = true): Promise<void> {
     if (broadcast) {
-      (game.socket as unknown as { emit(event: string, data: unknown): void })
-        ?.emit(`module.${MODULE_ID}`, { action: "stop", slotId });
+      game.socket.emit(`module.${MODULE_ID}`, { action: "stop", slotId });
     }
     const entry = AudioManager.activeSounds.get(slotId);
     AudioManager.activeSounds.delete(slotId);
@@ -222,8 +219,7 @@ export class AudioManager {
 
   static stopAll(broadcast = true): void {
     if (broadcast) {
-      (game.socket as unknown as { emit(event: string, data: unknown): void })
-        ?.emit(`module.${MODULE_ID}`, { action: "stopAll" });
+      game.socket.emit(`module.${MODULE_ID}`, { action: "stopAll" });
     }
     for (const entry of AudioManager.activeSounds.values()) {
       if (entry.loopTimer) clearTimeout(entry.loopTimer);

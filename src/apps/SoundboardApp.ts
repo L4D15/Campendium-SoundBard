@@ -56,7 +56,7 @@ export class SoundboardApp extends ApplicationV2 {
     const masterReverb = getMasterReverb();
     const activeBankId = getActiveBankId();
     const all = getAllBanks();
-    const activeBank = all.banks.find(b => b.id === activeBankId) ?? all.banks[0];
+    const activeBank = all.banks.find(b => b.id === activeBankId) ?? all.banks[0]!;
     const { slots } = activeBank;
 
     // Bank sidebar items
@@ -168,7 +168,7 @@ export class SoundboardApp extends ApplicationV2 {
     ];
   }
 
-  override _onRender(_context: object, _options: object): void {
+  override async _onRender(_context: object, _options: object): Promise<void> {
     const el = this.element;
 
     // === Slot buttons ===
