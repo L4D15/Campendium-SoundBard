@@ -215,6 +215,8 @@ export class AudioManager {
       teardownEQ(entry.eqNodes);
       silentStop(entry.sound);
     }
+    // Re-render so the slot button drops its "playing" state.
+    _refreshPanel?.();
   }
 
   static stopAll(broadcast = true): void {
