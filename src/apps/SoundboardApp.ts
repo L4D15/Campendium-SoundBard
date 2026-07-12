@@ -198,8 +198,7 @@ export class SoundboardApp extends ApplicationV2 {
         const uid = Number(btn.dataset.uid);
         const slot = getActiveBank().slots[idx];
         if (!slot?.src) return;
-        // Toggle: a playing slot stops on click; otherwise (re)play it.
-        if (AudioManager.isPlaying(uid)) void AudioManager.stop(uid);
+        if (slot.loop && AudioManager.isPlaying(uid)) void AudioManager.stop(uid);
         else void AudioManager.play({ ...slot, id: uid });
       });
 
