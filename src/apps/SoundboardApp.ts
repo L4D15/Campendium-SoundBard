@@ -129,7 +129,7 @@ export class SoundboardApp extends ApplicationV2 {
         data-name="${escapeHtml((slot.name || "").toLowerCase())}"
         title="${escapeHtml(slot.name || `Slot ${i + 1}`)}"
         ${!hasSound ? "disabled" : ""}
-      >${label}${keyLabel ? `<span class="soundbard-slot-keybind">${escapeHtml(keyLabel)}</span>` : ""}</button>`;
+      >${label}${keyLabel ? `<span class="soundbard-slot-keybind">${escapeHtml(keyLabel)}</span>` : ""}${slot.loop && hasSound ? `<i class="soundbard-slot-loop fa-solid fa-repeat"></i>` : ""}</button>`;
     }).join("");
 
     return `
