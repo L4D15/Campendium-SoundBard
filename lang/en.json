@@ -18,6 +18,8 @@
     "SlotLoop": "Loop",
     "SlotLoopDelay": "Loop Delay",
     "SlotLoopDelayHint": "Pause between loops. 0 = continuous.",
+    "SlotFadeIn": "Fade In",
+    "SlotFadeOut": "Fade Out",
     "Seconds": "sec",
     "ClearSlot": "Clear Slot",
     "Browse": "Browse",

@@ -524,7 +524,7 @@
 .soundbard-slot-keybind {
   position: absolute;
   bottom: 3px;
-  right: 4px;
+  left: 4px;
   font-size: 9px;
   font-family: 'Figtree', system-ui, sans-serif;
   line-height: 1;
@@ -536,6 +536,21 @@
 
 .soundbard-slot.has-sound .soundbard-slot-keybind { color: var(--orange-bright); opacity: 0.80; }
 .soundbard-slot.playing  .soundbard-slot-keybind  { color: var(--accent);       opacity: 0.90; }
+
+.soundbard-slot-loop {
+  position: absolute;
+  bottom: 3px;
+  right: 4px;
+  font-size: 9px;
+  line-height: 1;
+  color: var(--muted-foreground);
+  pointer-events: none;
+  user-select: none;
+  opacity: 0.65;
+}
+
+.soundbard-slot.has-sound .soundbard-slot-loop { color: var(--orange-bright); opacity: 0.80; }
+.soundbard-slot.playing  .soundbard-slot-loop  { color: var(--accent);       opacity: 0.90; }
 
 /* ============================================================
    Footer

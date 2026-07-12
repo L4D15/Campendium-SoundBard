@@ -98,13 +98,27 @@ export class SlotConfigApp extends ApplicationV2 {
           <label>${game.i18n.localize("SOUNDBARD.SlotLoop")}</label>
           <input type="checkbox" name="loop" ${slot.loop ? "checked" : ""}>
         </div>
-        <div class="form-group soundbard-loop-delay"${slot.loop ? "" : ' style="display: none;"'}>
+        <div class="form-group soundbard-loop-field"${slot.loop ? "" : ' style="display: none;"'}>
           <label>${game.i18n.localize("SOUNDBARD.SlotLoopDelay")}</label>
           <div class="form-fields">
             <input type="number" name="loopDelay" min="0" max="60" step="0.5" value="${slot.loopDelay ?? 0}">
             <span class="soundbard-loop-delay-unit">${game.i18n.localize("SOUNDBARD.Seconds")}</span>
           </div>
           <p class="hint">${game.i18n.localize("SOUNDBARD.SlotLoopDelayHint")}</p>
+        </div>
+        <div class="form-group soundbard-loop-field"${slot.loop ? "" : ' style="display: none;"'}>
+          <label>${game.i18n.localize("SOUNDBARD.SlotFadeIn")}</label>
+          <div class="form-fields">
+            <input type="number" name="fadeIn" min="0" max="60" step="0.5" value="${slot.fadeIn ?? 0}">
+            <span class="soundbard-loop-delay-unit">${game.i18n.localize("SOUNDBARD.Seconds")}</span>
+          </div>
+        </div>
+        <div class="form-group soundbard-loop-field"${slot.loop ? "" : ' style="display: none;"'}>
+          <label>${game.i18n.localize("SOUNDBARD.SlotFadeOut")}</label>
+          <div class="form-fields">
+            <input type="number" name="fadeOut" min="0" max="60" step="0.5" value="${slot.fadeOut ?? 0}">
+            <span class="soundbard-loop-delay-unit">${game.i18n.localize("SOUNDBARD.Seconds")}</span>
+          </div>
         </div>
         <details class="soundbard-fx">
           <summary class="soundbard-fx-summary">
@@ -201,11 +215,11 @@ export class SlotConfigApp extends ApplicationV2 {
       });
     });
 
-    // Show/hide loop delay field with the loop checkbox
+    // Show/hide loop-only fields (delay, fades) with the loop checkbox
     const loopInput = el.querySelector<HTMLInputElement>('[name="loop"]');
-    const loopDelayGroup = el.querySelector<HTMLElement>(".soundbard-loop-delay");
+    const loopFields = el.querySelectorAll<HTMLElement>(".soundbard-loop-field");
     loopInput?.addEventListener("change", () => {
-      if (loopDelayGroup) loopDelayGroup.style.display = loopInput.checked ? "" : "none";
+      loopFields.forEach((g) => { g.style.display = loopInput.checked ? "" : "none"; });
     });
 
     // FilePicker for audio browse
@@ -247,6 +261,8 @@ export class SlotConfigApp extends ApplicationV2 {
       AudioManager.applySlotEQ(slot.id, slot.eqLow, slot.eqMid, slot.eqHigh);
       slot.loop = el.querySelector<HTMLInputElement>('[name="loop"]')?.checked ?? false;
       slot.loopDelay = Math.max(0, Number(data.get("loopDelay") ?? 0) || 0);
+      slot.fadeIn = Math.max(0, Number(data.get("fadeIn") ?? 0) || 0);
+      slot.fadeOut = Math.max(0, Number(data.get("fadeOut") ?? 0) || 0);
 
       bank.slots[this.slotIndex] = slot;
 

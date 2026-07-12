@@ -61,8 +61,13 @@ function teardownEQ(nodes: EQNodes | undefined): void {
   try { nodes.high.disconnect(); } catch { /* already disconnected */ }
 }
 
+function teardownFade(node: GainNode | undefined): void {
+  if (!node) return;
+  try { node.disconnect(); } catch { /* already disconnected */ }
+}
+
 export class AudioManager {
-  private static activeSounds = new Map<number, { sound: foundry.audio.Sound; slotVolume: number; slotReverb: number; reverbNodes?: ReverbNodes; eqNodes?: EQNodes; loopTimer?: ReturnType<typeof setTimeout> }>();
+  private static activeSounds = new Map<number, { sound: foundry.audio.Sound; slotVolume: number; slotReverb: number; reverbNodes?: ReverbNodes; eqNodes?: EQNodes; fadeGain?: GainNode; fadeOut: number; loopTimer?: ReturnType<typeof setTimeout> }>();
 
   // Live values kept in sync with the sliders — used when starting new sounds so
   // they respect the current slider position even before settings.set() completes.
@@ -88,6 +93,7 @@ export class AudioManager {
       if (existing.loopTimer) clearTimeout(existing.loopTimer);
       teardownReverb(existing.reverbNodes);
       teardownEQ(existing.eqNodes);
+      teardownFade(existing.fadeGain);
       silentStop(existing.sound);
     }
 
@@ -126,6 +132,7 @@ export class AudioManager {
     const slotReverb = slot.reverb ?? 0;
     let reverbNodes: ReverbNodes | undefined;
     let eqNodes: EQNodes | undefined;
+    let fadeGain: GainNode | undefined;
     if (ctx) {
       const gainNode = sound.gainNode;
       if (!gainNode) return;
@@ -162,8 +169,20 @@ export class AudioManager {
       const wetGain = ctx.createGain();
       wetGain.gain.value = Math.min(1, slotReverb + AudioManager.getLiveReverb());
 
+      // Fade node — ramps volume up on start / down on stop for looped sounds.
+      fadeGain = ctx.createGain();
+      const fadeInSecs = slot.loop ? Math.max(0, slot.fadeIn ?? 0) : 0;
+      if (fadeInSecs > 0) {
+        const now = ctx.currentTime;
+        fadeGain.gain.setValueAtTime(0, now);
+        fadeGain.gain.linearRampToValueAtTime(1, now + fadeInSecs);
+      } else {
+        fadeGain.gain.value = 1;
+      }
+
       gainNode.disconnect();
-      gainNode.connect(low);
+      gainNode.connect(fadeGain);
+      fadeGain.connect(low);
       low.connect(mid);
       mid.connect(high);
       high.connect(dryGain);
@@ -176,9 +195,9 @@ export class AudioManager {
       eqNodes = { low, mid, high };
     }
 
-    const entry = { sound, slotVolume: slot.volume, slotReverb, reverbNodes, eqNodes } as {
+    const entry = { sound, slotVolume: slot.volume, slotReverb, reverbNodes, eqNodes, fadeGain, fadeOut: slot.loop ? Math.max(0, slot.fadeOut ?? 0) : 0 } as {
       sound: foundry.audio.Sound; slotVolume: number; slotReverb: number;
-      reverbNodes?: ReverbNodes; eqNodes?: EQNodes; loopTimer?: ReturnType<typeof setTimeout>;
+      reverbNodes?: ReverbNodes; eqNodes?: EQNodes; fadeGain?: GainNode; fadeOut: number; loopTimer?: ReturnType<typeof setTimeout>;
     };
     AudioManager.activeSounds.set(slot.id, entry);
     _refreshPanel?.();
@@ -192,6 +211,7 @@ export class AudioManager {
         // Keep the slot marked active during the gap, then re-trigger after the delay.
         teardownReverb(entry.reverbNodes);
         teardownEQ(entry.eqNodes);
+        teardownFade(entry.fadeGain);
         entry.loopTimer = setTimeout(() => {
           if (AudioManager.activeSounds.get(slot.id) !== entry) return;
           void AudioManager.play(slot, false);
@@ -211,10 +231,29 @@ export class AudioManager {
     AudioManager.activeSounds.delete(slotId);
     if (entry) {
       if (entry.loopTimer) clearTimeout(entry.loopTimer);
-      teardownReverb(entry.reverbNodes);
-      teardownEQ(entry.eqNodes);
-      silentStop(entry.sound);
+      const ctx = game.audio.context;
+      if (entry.fadeOut > 0 && entry.fadeGain && ctx) {
+        // Fade the volume down, then tear the graph down once the ramp finishes.
+        const now = ctx.currentTime;
+        const gain = entry.fadeGain.gain;
+        gain.cancelScheduledValues(now);
+        gain.setValueAtTime(gain.value, now);
+        gain.linearRampToValueAtTime(0, now + entry.fadeOut);
+        setTimeout(() => {
+          teardownReverb(entry.reverbNodes);
+          teardownEQ(entry.eqNodes);
+          teardownFade(entry.fadeGain);
+          silentStop(entry.sound);
+        }, entry.fadeOut * 1000);
+      } else {
+        teardownReverb(entry.reverbNodes);
+        teardownEQ(entry.eqNodes);
+        teardownFade(entry.fadeGain);
+        silentStop(entry.sound);
+      }
     }
+    // Re-render so the slot button drops its "playing" state.
+    _refreshPanel?.();
   }
 
   static stopAll(broadcast = true): void {
@@ -225,6 +264,7 @@ export class AudioManager {
       if (entry.loopTimer) clearTimeout(entry.loopTimer);
       teardownReverb(entry.reverbNodes);
       teardownEQ(entry.eqNodes);
+      teardownFade(entry.fadeGain);
       silentStop(entry.sound);
     }
     AudioManager.activeSounds.clear();

@@ -129,7 +129,7 @@ export class SoundboardApp extends ApplicationV2 {
         data-name="${escapeHtml((slot.name || "").toLowerCase())}"
         title="${escapeHtml(slot.name || `Slot ${i + 1}`)}"
         ${!hasSound ? "disabled" : ""}
-      >${label}${keyLabel ? `<span class="soundbard-slot-keybind">${escapeHtml(keyLabel)}</span>` : ""}</button>`;
+      >${label}${keyLabel ? `<span class="soundbard-slot-keybind">${escapeHtml(keyLabel)}</span>` : ""}${slot.loop && hasSound ? `<i class="soundbard-slot-loop fa-solid fa-repeat"></i>` : ""}</button>`;
     }).join("");
 
     return `
@@ -197,7 +197,9 @@ export class SoundboardApp extends ApplicationV2 {
         const idx = Number(btn.dataset.slotIndex);
         const uid = Number(btn.dataset.uid);
         const slot = getActiveBank().slots[idx];
-        if (slot?.src) void AudioManager.play({ ...slot, id: uid });
+        if (!slot?.src) return;
+        if (slot.loop && AudioManager.isPlaying(uid)) void AudioManager.stop(uid);
+        else void AudioManager.play({ ...slot, id: uid });
       });
 
       btn.addEventListener("contextmenu", async (e) => {
