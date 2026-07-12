@@ -7,6 +7,9 @@ export interface SlotData {
   loop: boolean;
   // Seconds to pause between loop iterations. 0 = continuous (gapless) loop.
   loopDelay: number;
+  // Fade durations in seconds, applied to looped sounds only. 0 = no fade.
+  fadeIn: number;
+  fadeOut: number;
   reverb: number;
   // 3-band EQ gains in dB, range -12..+12, 0 = flat
   eqLow: number;
@@ -25,7 +28,7 @@ export interface AllBanksData {
 }
 
 export function emptySlot(id: number): SlotData {
-  return { id, name: "", src: "", emoji: "", volume: 1, loop: false, loopDelay: 0, reverb: 0, eqLow: 0, eqMid: 0, eqHigh: 0 };
+  return { id, name: "", src: "", emoji: "", volume: 1, loop: false, loopDelay: 0, fadeIn: 0, fadeOut: 0, reverb: 0, eqLow: 0, eqMid: 0, eqHigh: 0 };
 }
 
 export function makeSingleBank(id: number, columns: number, rows: number): Bank {
